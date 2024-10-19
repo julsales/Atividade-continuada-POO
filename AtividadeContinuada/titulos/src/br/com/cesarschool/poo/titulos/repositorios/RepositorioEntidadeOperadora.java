@@ -1,4 +1,9 @@
 package br.com.cesarschool.poo.titulos.repositorios;
+import java.io.*;
+import java.nio.file.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 /*
  * Deve gravar em e ler de um arquivo texto chamado Acao.txt os dados dos objetos do tipo
  * Acao. Seguem abaixo exemplos de linhas.

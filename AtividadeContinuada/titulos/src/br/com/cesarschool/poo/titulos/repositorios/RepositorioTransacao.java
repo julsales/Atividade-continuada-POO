@@ -1,6 +1,11 @@
 package br.com.cesarschool.poo.titulos.repositorios;
-
+import java.io.*;
+import java.nio.file.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import br.com.cesarschool.poo.titulos.entidades.Transacao;
+
 /*
  * Deve gravar em e ler de um arquivo texto chamado Transacao.txt os dados dos objetos do tipo
  * Transacao. Seguem abaixo exemplos de linhas 

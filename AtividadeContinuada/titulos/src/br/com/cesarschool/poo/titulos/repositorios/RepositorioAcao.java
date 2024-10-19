@@ -1,5 +1,9 @@
 package br.com.cesarschool.poo.titulos.repositorios;
-
+import java.io.*;
+import java.nio.file.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import br.com.cesarschool.poo.titulos.entidades.Acao;
 /*
  * Deve gravar em e ler de um arquivo texto chamado Acao.txt os dados dos objetos do tipo
