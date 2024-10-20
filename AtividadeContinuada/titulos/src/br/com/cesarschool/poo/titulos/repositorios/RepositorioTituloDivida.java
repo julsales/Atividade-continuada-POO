@@ -4,7 +4,7 @@ import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import br.com.cesarschool.poo.titulos.entidades.Acao;
+
 import br.com.cesarschool.poo.titulos.entidades.TituloDivida;
 
 /*
@@ -57,11 +57,68 @@ public class RepositorioTituloDivida {
 	}
 
 	public boolean alterar(TituloDivida tituloDivida) {
-
+		List<String> lines = new ArrayList<>();
+		boolean trocou = false;
+		try(BufferedReader reader = new BufferedReader(new FileReader(text.toFile()))) {
+			String line;
+			while((line=reader.readLine())!=null){
+				String[] atributos = line.split(";");
+				if(atributos[0].equals(String.valueOf(tituloDivida.getIdentificador()))){
+					lines.add(tituloDivida.getIdentificador() + " " + tituloDivida.getNome() + " " + tituloDivida.getDataDeValidade() + " " + tituloDivida.getTaxaJuros());
+					trocou=true;
+				}else{
+					lines.add(line);
+				}
+			}
+		}catch (IOException e){
+			return false;
+		}
+		if(trocou){
+			try(BufferedWriter writer = new BufferedWriter(new FileWriter(text.toFile(),true))){
+				for(String line:lines){
+					writer.write(line);
+					writer.newLine();
+					return true;
+				}
+			}catch (IOException e){
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
 		return false;
 	}
 
 	public boolean excluir(int identificador) {
+		List<String> lines = new ArrayList<>();
+		boolean excluido = false;
+		try(BufferedReader reader = new BufferedReader(new FileReader(text.toFile()))) {
+			String line;
+			while((line=reader.readLine())!=null){
+				String[] atributos = line.split(";");
+				if(Integer.parseInt(atributos[0])!=identificador){
+					lines.add(line);
+				}else{
+					excluido = true;
+				}
+			}
+		}catch (IOException e){
+			return false;
+		}
+		if(excluido){
+			try(BufferedWriter writer = new BufferedWriter(new FileWriter(text.toFile(),true))){
+				for(String line:lines){
+					writer.write(line);
+					writer.newLine();
+					return true;
+				}
+			}catch (IOException e){
+				return false;
+			}
+		}else{
+			return false;
+		}
 		return false;
 	}
 
