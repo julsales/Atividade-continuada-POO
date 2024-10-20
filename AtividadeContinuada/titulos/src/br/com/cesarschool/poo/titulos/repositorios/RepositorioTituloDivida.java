@@ -122,7 +122,7 @@ public class RepositorioTituloDivida {
 		return false;
 	}
 
-	public TituloDivida buscar(int identificador) {
+	static public TituloDivida buscar(int identificador) {
 		try(BufferedReader reader = new BufferedReader(new FileReader(text.toFile()))) {
 			String line;
 			while((line=reader.readLine())!=null){

@@ -124,7 +124,7 @@ public class RepositorioEntidadeOperadora {
         }
     }
 
-    public EntidadeOperadora buscar(int identificador) {
+    static public EntidadeOperadora buscar(int identificador) {
         try (BufferedReader reader = new BufferedReader(new FileReader(text.toFile()))) {
             String line;
             while ((line = reader.readLine()) != null) {

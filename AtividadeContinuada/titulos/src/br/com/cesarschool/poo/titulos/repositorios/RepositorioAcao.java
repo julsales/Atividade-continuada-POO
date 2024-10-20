@@ -124,7 +124,7 @@ public class RepositorioAcao {
 		}
 	}
 
-	public Acao buscar(int identificador) {
+	static public Acao buscar(int identificador) {
 		try (BufferedReader reader = new BufferedReader(new FileReader(text.toFile()))) {
 			String line;
 			while ((line = reader.readLine()) != null) {
