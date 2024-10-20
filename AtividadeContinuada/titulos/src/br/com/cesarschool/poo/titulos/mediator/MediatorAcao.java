@@ -1,56 +1,139 @@
 package br.com.cesarschool.poo.titulos.mediator;
+
 /*
  * Deve ser um singleton.
  * 
  * Deve ter um atributo repositorioAcao, do tipo RepositorioAcao, que deve 
- * ser inicializado na sua declaração. Este atributo será usado exclusivamente
- * pela classe, não tendo, portanto, métodos set e get.
+ * ser inicializado na sua declaraï¿½ï¿½o. Este atributo serï¿½ usado exclusivamente
+ * pela classe, nï¿½o tendo, portanto, mï¿½todos set e get.
  * 
- * Métodos: 
+ * Mï¿½todos: 
  * 
  * pivate String validar(Acao acao): deve validar os dados do objeto recebido nos seguintes termos: 
  * identificador: deve ser maior que zero e menor que 100000 (1)
  * nome: deve ser preenchido, diferente de branco e de null (2). deve ter entre 10 e 100 caracteres (3).
  * data de validade: deve ser maior do que a data atual mais 30 dias (4). 
  * valorUnitario: deve ser maior que zero (5). 
- * O método validar deve retornar null se o objeto estiver válido, e uma mensagem pertinente (ver abaixo)
- * se algum valor de atributo estiver inválido.
+ * O mï¿½todo validar deve retornar null se o objeto estiver vï¿½lido, e uma mensagem pertinente (ver abaixo)
+ * se algum valor de atributo estiver invï¿½lido.
  * 
  * (1) - Identificador deve estar entre 1 e 99999.
  * (2) - Nome deve ser preenchido.
  * (3) - Nome deve ter entre 10 e 100 caracteres.
  * (4) - Data de validade deve ter pelo menos 30 dias na frente da data atual.
- * (5) - Valor unitário deve ser maior que zero.
+ * (5) - Valor unitï¿½rio deve ser maior que zero.
  *
- * public String incluir(Acao acao): deve chamar o método validar. Se ele 
- * retornar null, deve incluir acao no repositório. Retornos possíveis:
+ * public String incluir(Acao acao): deve chamar o mï¿½todo validar. Se ele 
+ * retornar null, deve incluir acao no repositï¿½rio. Retornos possï¿½veis:
  * (1) null, se o retorno do validar for null e o retorno do incluir do 
- * repositório for true.
+ * repositï¿½rio for true.
  * (2) a mensagem retornada pelo validar, se o retorno deste for diferente
  * de null.
- * (3) A mensagem "Ação já existente", se o retorno do validar for null
- * e o retorno do repositório for false.
+ * (3) A mensagem "Aï¿½ï¿½o jï¿½ existente", se o retorno do validar for null
+ * e o retorno do repositï¿½rio for false.
  *
- * public String alterar(Acao acao): deve chamar o método validar. Se ele 
- * retornar null, deve alterar acao no repositório. Retornos possíveis:
+ * public String alterar(Acao acao): deve chamar o mï¿½todo validar. Se ele 
+ * retornar null, deve alterar acao no repositï¿½rio. Retornos possï¿½veis:
  * (1) null, se o retorno do validar for null e o retorno do alterar do 
- * repositório for true.
+ * repositï¿½rio for true.
  * (2) a mensagem retornada pelo validar, se o retorno deste for diferente
  * de null.
- * (3) A mensagem "Ação inexistente", se o retorno do validar for null
- * e o retorno do repositório for false.
+ * (3) A mensagem "Aï¿½ï¿½o inexistente", se o retorno do validar for null
+ * e o retorno do repositï¿½rio for false.
  * 
  * public String excluir(int identificador): deve validar o identificador. 
- * Se este for válido, deve chamar o excluir do repositório. Retornos possíveis:
- * (1) null, se o retorno do excluir do repositório for true.
- * (2) A mensagem "Ação inexistente", se o retorno do repositório for false
- * ou se o identificador for inválido.
+ * Se este for vï¿½lido, deve chamar o excluir do repositï¿½rio. Retornos possï¿½veis:
+ * (1) null, se o retorno do excluir do repositï¿½rio for true.
+ * (2) A mensagem "Aï¿½ï¿½o inexistente", se o retorno do repositï¿½rio for false
+ * ou se o identificador for invï¿½lido.
  * 
  * public Acao buscar(int identificador): deve validar o identificador.
- * Se este for válido, deve chamar o buscar do repositório, retornando o 
- * que ele retornar. Se o identificador for inválido, retornar null. 
+ * Se este for vï¿½lido, deve chamar o buscar do repositï¿½rio, retornando o 
+ * que ele retornar. Se o identificador for invï¿½lido, retornar null. 
  */
+
+
+import java.time.LocalDate;
+import br.com.cesarschool.poo.titulos.entidades.Acao;
+import br.com.cesarschool.poo.titulos.repositorios.RepositorioAcao;
+
 public class MediatorAcao {
 
+    private static MediatorAcao instancia;
 
+    private final RepositorioAcao repositorioAcao = new RepositorioAcao();
+
+    private MediatorAcao() {}
+
+    public static MediatorAcao obterInstancia() {
+        if (instancia == null) {
+            instancia = new MediatorAcao();
+        }
+        return instancia;
+    }
+
+    private String checarValidade(Acao acao) {
+        if (acao.getIdentificador() <= 0 || acao.getIdentificador() >= 100000) {
+            return "Identificador deve ser entre 1 e 99999.";
+        }
+
+        if (acao.getNome() == null || acao.getNome().trim().isEmpty()) {
+            return "O nome nÃ£o pode ser vazio.";
+        }
+
+        if (acao.getNome().length() < 10 || acao.getNome().length() > 100) {
+            return "O nome deve conter entre 10 e 100 caracteres.";
+        }
+
+        if (acao.getDataDeValidade().isBefore(LocalDate.now().plusDays(30))) {
+            return "A data de validade deve estar a pelo menos 30 dias Ã  frente da data atual.";
+        }
+
+        if (acao.getValorUnitario() <= 0) {
+            return "O valor unitÃ¡rio deve ser maior que zero.";
+        }
+
+        return null;
+    }
+
+    public String adicionar(Acao acao) {
+        String erroValidacao = checarValidade(acao);
+
+        if (erroValidacao != null) {
+            return erroValidacao;
+        }
+
+        boolean inseridoComSucesso = repositorioAcao.incluir(acao);
+
+        return inseridoComSucesso ? null : "AÃ§Ã£o jÃ¡ registrada.";
+    }
+
+    public String atualizar(Acao acao) {
+        String erroValidacao = checarValidade(acao);
+
+        if (erroValidacao != null) {
+            return erroValidacao;
+        }
+
+        boolean alteradaComSucesso = repositorioAcao.alterar(acao);
+
+        return alteradaComSucesso ? null : "AÃ§Ã£o nÃ£o encontrada.";
+    }
+
+    public String remover(int identificador) {
+        if (identificador <= 0 || identificador >= 100000) {
+            return "Identificador deve estar entre 1 e 99999.";
+        }
+
+        boolean removidaComSucesso = repositorioAcao.excluir(identificador);
+
+        return removidaComSucesso ? null : "AÃ§Ã£o nÃ£o encontrada.";
+    }
+
+    public Acao localizar(int identificador) {
+        if (identificador <= 0 || identificador >= 100000) {
+            return null;
+        }
+        return repositorioAcao.buscar(identificador);
+    }
 }
