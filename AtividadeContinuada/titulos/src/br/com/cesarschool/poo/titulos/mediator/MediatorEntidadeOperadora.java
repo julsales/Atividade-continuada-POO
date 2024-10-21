@@ -3,51 +3,185 @@ package br.com.cesarschool.poo.titulos.mediator;
  * Deve ser um singleton.
  * 
  * Deve ter um atributo repositorioEntidadeOperadora, do tipo RepositorioEntidadeOperadora, que deve 
- * ser inicializado na sua declaração. Este atributo será usado exclusivamente
- * pela classe, não tendo, portanto, métodos set e get.
+ * ser inicializado na sua declaraï¿½ï¿½o. Este atributo serï¿½ usado exclusivamente
+ * pela classe, nï¿½o tendo, portanto, mï¿½todos set e get.
  * 
- * Métodos: 
+ * Mï¿½todos: 
  * 
  * pivate String validar(EntidadeOperadora): deve validar os dados do objeto recebido nos seguintes termos: 
  * identificador: deve ser maior que zero e menor que 100000 (1)
  * nome: deve ser preenchido, diferente de branco e de null (2). deve ter entre 5 e 60 caracteres (3).
  * data de validade: deve ser maior do que a data atual mais 180 dias (4). 
  * valorUnitario: deve ser maior que zero (5). 
- * O método validar deve retornar null se o objeto estiver válido, e uma mensagem pertinente (ver abaixo)
- * se algum valor de atributo estiver inválido.
+ * O mï¿½todo validar deve retornar null se o objeto estiver vï¿½lido, e uma mensagem pertinente (ver abaixo)
+ * se algum valor de atributo estiver invï¿½lido.
  * 
  * (1) - Identificador deve estar entre 100 e 1000000.
  * (2) - Nome deve ser preenchido.
  * (3) - Nome deve ter entre 10 e 100 caracteres.
  *
- * public String incluir(EntidadeOperadora entidade): deve chamar o método validar. Se ele 
- * retornar null, deve incluir entidade no repositório. Retornos possíveis:
+ * public String incluir(EntidadeOperadora entidade): deve chamar o mï¿½todo validar. Se ele 
+ * retornar null, deve incluir entidade no repositï¿½rio. Retornos possï¿½veis:
  * (1) null, se o retorno do validar for null e o retorno do incluir do 
- * repositório for true.
+ * repositï¿½rio for true.
  * (2) a mensagem retornada pelo validar, se o retorno deste for diferente
  * de null.
- * (3) A mensagem "Entidade já existente", se o retorno do validar for null
- * e o retorno do repositório for false. 
+ * (3) A mensagem "Entidade jï¿½ existente", se o retorno do validar for null
+ * e o retorno do repositï¿½rio for false. 
  *
- * public String alterar(EntidadeOperadora entidade): deve chamar o método validar. Se ele 
- * retornar null, deve alterar entidade no repositório. Retornos possíveis:
+ * public String alterar(EntidadeOperadora entidade): deve chamar o mï¿½todo validar. Se ele 
+ * retornar null, deve alterar entidade no repositï¿½rio. Retornos possï¿½veis:
  * (1) null, se o retorno do validar for null e o retorno do alterar do 
- * repositório for true.
+ * repositï¿½rio for true.
  * (2) a mensagem retornada pelo validar, se o retorno deste for diferente
  * de null.
  * (3) A mensagem "Entidade inexistente", se o retorno do validar for null
- * e o retorno do repositório for false.
+ * e o retorno do repositï¿½rio for false.
  * 
  * public String excluir(int identificador): deve validar o identificador. 
- * Se este for válido, deve chamar o excluir do repositório. Retornos possíveis:
- * (1) null, se o retorno do excluir do repositório for true.
- * (2) A mensagem "Entidade inexistente", se o retorno do repositório for false
- * ou se o identificador for inválido.
+ * Se este for vï¿½lido, deve chamar o excluir do repositï¿½rio. Retornos possï¿½veis:
+ * (1) null, se o retorno do excluir do repositï¿½rio for true.
+ * (2) A mensagem "Entidade inexistente", se o retorno do repositï¿½rio for false
+ * ou se o identificador for invï¿½lido.
  * 
  * public EntidadeOperadora buscar(int identificador): deve validar o identificador.
- * Se este for válido, deve chamar o buscar do repositório, retornando o 
- * que ele retornar. Se o identificador for inválido, retornar null. 
+ * Se este for vï¿½lido, deve chamar o buscar do repositï¿½rio, retornando o 
+ * que ele retornar. Se o identificador for invï¿½lido, retornar null. 
  */
-public class MediatorEntidadeOperadora {
+import br.com.cesarschool.poo.titulos.entidades.EntidadeOperadora;
 
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+public class RepositorioEntidadeOperadora {
+
+    private final Path caminhoArquivo = Paths.get("EntidadeOperadora.txt");
+
+    // MÃ©todo para incluir uma nova EntidadeOperadora no arquivo
+    public boolean adicionar(EntidadeOperadora entidade) {
+        // Verificar se o identificador jÃ¡ existe no arquivo
+        if (existeIdentificador(entidade.getIdentificador())) {
+            return false;
+        }
+
+        // Adicionar uma nova linha ao arquivo
+        try (BufferedWriter escritor = new BufferedWriter(new FileWriter(caminhoArquivo.toFile(), true))) {
+            escritor.write(formatarLinha(entidade));
+            escritor.newLine();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    // MÃ©todo para alterar uma EntidadeOperadora existente no arquivo
+    public boolean atualizar(EntidadeOperadora entidade) {
+        List<String> linhasModificadas = new ArrayList<>();
+        boolean alterado = false;
+
+        try (BufferedReader leitor = new BufferedReader(new FileReader(caminhoArquivo.toFile()))) {
+            String linha;
+            while ((linha = leitor.readLine()) != null) {
+                String[] dados = linha.split(";");
+                if (dados[0].equals(String.valueOf(entidade.getIdentificador()))) {
+                    linhasModificadas.add(formatarLinha(entidade)); // Atualiza a linha com os novos dados
+                    alterado = true;
+                } else {
+                    linhasModificadas.add(linha);
+                }
+            }
+        } catch (IOException e) {
+            return false;
+        }
+
+        if (alterado) {
+            escreverNovasLinhas(linhasModificadas);
+            return true;
+        }
+
+        return false;
+    }
+
+    // MÃ©todo para excluir uma EntidadeOperadora com base no identificador
+    public boolean remover(int identificador) {
+        List<String> linhasModificadas = new ArrayList<>();
+        boolean removido = false;
+
+        try (BufferedReader leitor = new BufferedReader(new FileReader(caminhoArquivo.toFile()))) {
+            String linha;
+            while ((linha = leitor.readLine()) != null) {
+                String[] dados = linha.split(";");
+                if (!dados[0].equals(String.valueOf(identificador))) {
+                    linhasModificadas.add(linha);
+                } else {
+                    removido = true;
+                }
+            }
+        } catch (IOException e) {
+            return false;
+        }
+
+        if (removido) {
+            escreverNovasLinhas(linhasModificadas);
+            return true;
+        }
+
+        return false;
+    }
+
+    // MÃ©todo para buscar uma EntidadeOperadora pelo identificador
+    public EntidadeOperadora procurar(int identificador) {
+        try (BufferedReader leitor = new BufferedReader(new FileReader(caminhoArquivo.toFile()))) {
+            String linha;
+            while ((linha = leitor.readLine()) != null) {
+                String[] dados = linha.split(";");
+                if (dados[0].equals(String.valueOf(identificador))) {
+                    return new EntidadeOperadora(
+                            Integer.parseInt(dados[0]),
+                            dados[1],
+                            Boolean.parseBoolean(dados[2])
+                    );
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null; // Retorna null se o identificador nÃ£o for encontrado
+    }
+
+    // MÃ©todo auxiliar para verificar se um identificador jÃ¡ existe no arquivo
+    private boolean existeIdentificador(int identificador) {
+        try (BufferedReader leitor = new BufferedReader(new FileReader(caminhoArquivo.toFile()))) {
+            String linha;
+            while ((linha = leitor.readLine()) != null) {
+                String[] dados = linha.split(";");
+                if (dados[0].equals(String.valueOf(identificador))) {
+                    return true; // Identificador jÃ¡ existe
+                }
+            }
+        } catch (IOException e) {
+            return false;
+        }
+        return false;
+    }
+
+    // MÃ©todo auxiliar para escrever todas as linhas modificadas de volta no arquivo
+    private void escreverNovasLinhas(List<String> linhasModificadas) {
+        try (BufferedWriter escritor = new BufferedWriter(new FileWriter(caminhoArquivo.toFile()))) {
+            for (String linha : linhasModificadas) {
+                escritor.write(linha);
+                escritor.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // MÃ©todo auxiliar para formatar os dados de uma EntidadeOperadora em formato de linha de texto
+    private String formatarLinha(EntidadeOperadora entidade) {
+        return entidade.getIdentificador() + ";" + entidade.getNome() + ";" + entidade.getAutorizadoAcao();
+    }
 }
