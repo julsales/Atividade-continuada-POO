@@ -60,14 +60,11 @@ public class RepositorioEntidadeOperadora {
 
     private final Path caminhoArquivo = Paths.get("EntidadeOperadora.txt");
 
-    // Método para incluir uma nova EntidadeOperadora no arquivo
     public boolean adicionar(EntidadeOperadora entidade) {
-        // Verificar se o identificador já existe no arquivo
         if (existeIdentificador(entidade.getIdentificador())) {
             return false;
         }
 
-        // Adicionar uma nova linha ao arquivo
         try (BufferedWriter escritor = new BufferedWriter(new FileWriter(caminhoArquivo.toFile(), true))) {
             escritor.write(formatarLinha(entidade));
             escritor.newLine();
@@ -77,7 +74,6 @@ public class RepositorioEntidadeOperadora {
         }
     }
 
-    // Método para alterar uma EntidadeOperadora existente no arquivo
     public boolean atualizar(EntidadeOperadora entidade) {
         List<String> linhasModificadas = new ArrayList<>();
         boolean alterado = false;
@@ -87,7 +83,7 @@ public class RepositorioEntidadeOperadora {
             while ((linha = leitor.readLine()) != null) {
                 String[] dados = linha.split(";");
                 if (dados[0].equals(String.valueOf(entidade.getIdentificador()))) {
-                    linhasModificadas.add(formatarLinha(entidade)); // Atualiza a linha com os novos dados
+                    linhasModificadas.add(formatarLinha(entidade));
                     alterado = true;
                 } else {
                     linhasModificadas.add(linha);
@@ -105,7 +101,6 @@ public class RepositorioEntidadeOperadora {
         return false;
     }
 
-    // Método para excluir uma EntidadeOperadora com base no identificador
     public boolean remover(int identificador) {
         List<String> linhasModificadas = new ArrayList<>();
         boolean removido = false;
@@ -132,7 +127,6 @@ public class RepositorioEntidadeOperadora {
         return false;
     }
 
-    // Método para buscar uma EntidadeOperadora pelo identificador
     public EntidadeOperadora procurar(int identificador) {
         try (BufferedReader leitor = new BufferedReader(new FileReader(caminhoArquivo.toFile()))) {
             String linha;
@@ -149,17 +143,16 @@ public class RepositorioEntidadeOperadora {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null; // Retorna null se o identificador não for encontrado
+        return null;
     }
 
-    // Método auxiliar para verificar se um identificador já existe no arquivo
     private boolean existeIdentificador(int identificador) {
         try (BufferedReader leitor = new BufferedReader(new FileReader(caminhoArquivo.toFile()))) {
             String linha;
             while ((linha = leitor.readLine()) != null) {
                 String[] dados = linha.split(";");
                 if (dados[0].equals(String.valueOf(identificador))) {
-                    return true; // Identificador já existe
+                    return true; 
                 }
             }
         } catch (IOException e) {
@@ -168,7 +161,6 @@ public class RepositorioEntidadeOperadora {
         return false;
     }
 
-    // Método auxiliar para escrever todas as linhas modificadas de volta no arquivo
     private void escreverNovasLinhas(List<String> linhasModificadas) {
         try (BufferedWriter escritor = new BufferedWriter(new FileWriter(caminhoArquivo.toFile()))) {
             for (String linha : linhasModificadas) {
@@ -180,7 +172,6 @@ public class RepositorioEntidadeOperadora {
         }
     }
 
-    // Método auxiliar para formatar os dados de uma EntidadeOperadora em formato de linha de texto
     private String formatarLinha(EntidadeOperadora entidade) {
         return entidade.getIdentificador() + ";" + entidade.getNome() + ";" + entidade.getAutorizadoAcao();
     }
