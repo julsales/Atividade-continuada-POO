@@ -1,5 +1,9 @@
 package br.com.cesarschool.poo.titulos.mediator;
+import br.com.cesarschool.poo.titulos.entidades.Acao;
+import br.com.cesarschool.poo.titulos.repositorios.RepositorioAcao;
 
+import java.time.LocalDate;
+import java.io.IOException;
 /*
  * Deve ser um singleton.
  * 
@@ -53,26 +57,20 @@ package br.com.cesarschool.poo.titulos.mediator;
  */
 
 
-import java.time.LocalDate;
-import br.com.cesarschool.poo.titulos.entidades.Acao;
-import br.com.cesarschool.poo.titulos.repositorios.RepositorioAcao;
-
 public class MediatorAcao {
 
     private static MediatorAcao instancia;
-
     private final RepositorioAcao repositorioAcao = new RepositorioAcao();
-
     private MediatorAcao() {}
 
-    public static MediatorAcao obterInstancia() {
+    public static MediatorAcao getInstance() {
         if (instancia == null) {
             instancia = new MediatorAcao();
         }
         return instancia;
     }
 
-    private String checarValidade(Acao acao) {
+    private String validar(Acao acao) throws IOException{
         if (acao.getIdentificador() <= 0 || acao.getIdentificador() >= 100000) {
             return "Identificador deve ser entre 1 e 99999.";
         }
@@ -96,20 +94,24 @@ public class MediatorAcao {
         return null;
     }
 
-    public String adicionar(Acao acao) {
-        String erroValidacao = checarValidade(acao);
+    public String incluir(Acao acao) throws IOException {
+        String erroValidacao = validar(acao);
 
         if (erroValidacao != null) {
             return erroValidacao;
         }
 
-        boolean inseridoComSucesso = repositorioAcao.incluir(acao);
+        boolean incluidoComSucesso = repositorioAcao.incluir(acao);
 
-        return inseridoComSucesso ? null : "Ação já registrada.";
+        if(incluidoComSucesso){
+            return null;
+        }else{
+            return "Entidade já existente";
+        }
     }
 
-    public String atualizar(Acao acao) {
-        String erroValidacao = checarValidade(acao);
+    public String alterar(Acao acao) throws IOException {
+        String erroValidacao = validar(acao);
 
         if (erroValidacao != null) {
             return erroValidacao;
@@ -117,23 +119,31 @@ public class MediatorAcao {
 
         boolean alteradaComSucesso = repositorioAcao.alterar(acao);
 
-        return alteradaComSucesso ? null : "Ação não encontrada.";
+        if(alteradaComSucesso){
+            return null;
+        }else{
+            return "Entidade inexistente";
+        }
     }
 
-    public String remover(int identificador) {
+    public String excluir(int identificador) throws IOException {
         if (identificador <= 0 || identificador >= 100000) {
             return "Identificador deve estar entre 1 e 99999.";
         }
 
         boolean removidaComSucesso = repositorioAcao.excluir(identificador);
 
-        return removidaComSucesso ? null : "Ação não encontrada.";
+        if(removidaComSucesso){
+            return null;
+        }else{
+            return "Entidade inexistente";
+        }
     }
 
-    public Acao localizar(int identificador) {
+    public Acao localizar(int identificador) throws IOException {
         if (identificador <= 0 || identificador >= 100000) {
             return null;
         }
-        return repositorioAcao.buscar(identificador);
+        return RepositorioAcao.buscar(identificador);
     }
 }

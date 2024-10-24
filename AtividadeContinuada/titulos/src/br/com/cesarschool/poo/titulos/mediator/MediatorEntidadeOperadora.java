@@ -1,4 +1,9 @@
 package br.com.cesarschool.poo.titulos.mediator;
+import br.com.cesarschool.poo.titulos.entidades.*;
+import br.com.cesarschool.poo.titulos.repositorios.*;
+
+import java.io.IOException;
+import java.time.LocalDate;
 /*
  * Deve ser um singleton.
  * 
@@ -48,131 +53,81 @@ package br.com.cesarschool.poo.titulos.mediator;
  * Se este for v�lido, deve chamar o buscar do reposit�rio, retornando o 
  * que ele retornar. Se o identificador for inv�lido, retornar null. 
  */
-import br.com.cesarschool.poo.titulos.entidades.EntidadeOperadora;
+public class MediatorEntidadeOperadora {
+    private static MediatorEntidadeOperadora instancia;
+    private final RepositorioEntidadeOperadora repositorioEntidadeOperadora = new RepositorioEntidadeOperadora();
+    private MediatorEntidadeOperadora() {}
 
-import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-
-public class RepositorioEntidadeOperadora {
-
-    private final Path caminhoArquivo = Paths.get("EntidadeOperadora.txt");
-
-    public boolean adicionar(EntidadeOperadora entidade) {
-        if (existeIdentificador(entidade.getIdentificador())) {
-            return false;
+    public static MediatorEntidadeOperadora getInstance(){
+        if(instancia == null){
+            instancia = new MediatorEntidadeOperadora();
         }
-
-        try (BufferedWriter escritor = new BufferedWriter(new FileWriter(caminhoArquivo.toFile(), true))) {
-            escritor.write(formatarLinha(entidade));
-            escritor.newLine();
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
+        return instancia;
     }
-
-    public boolean atualizar(EntidadeOperadora entidade) {
-        List<String> linhasModificadas = new ArrayList<>();
-        boolean alterado = false;
-
-        try (BufferedReader leitor = new BufferedReader(new FileReader(caminhoArquivo.toFile()))) {
-            String linha;
-            while ((linha = leitor.readLine()) != null) {
-                String[] dados = linha.split(";");
-                if (dados[0].equals(String.valueOf(entidade.getIdentificador()))) {
-                    linhasModificadas.add(formatarLinha(entidade));
-                    alterado = true;
-                } else {
-                    linhasModificadas.add(linha);
-                }
-            }
-        } catch (IOException e) {
-            return false;
+    private String validar(EntidadeOperadora entidade) {
+        if (entidade.getIdentificador() <= 0 || entidade.getIdentificador() > 100000) {
+            return "Identificador deve ser entre 1 e 1000000.";
         }
 
-        if (alterado) {
-            escreverNovasLinhas(linhasModificadas);
-            return true;
+        if (entidade.getNome().length() < 10 || entidade.getNome().length() > 100) {
+            return "O nome deve conter entre 10 e 100 caracteres.";
         }
-
-        return false;
-    }
-
-    public boolean remover(int identificador) {
-        List<String> linhasModificadas = new ArrayList<>();
-        boolean removido = false;
-
-        try (BufferedReader leitor = new BufferedReader(new FileReader(caminhoArquivo.toFile()))) {
-            String linha;
-            while ((linha = leitor.readLine()) != null) {
-                String[] dados = linha.split(";");
-                if (!dados[0].equals(String.valueOf(identificador))) {
-                    linhasModificadas.add(linha);
-                } else {
-                    removido = true;
-                }
-            }
-        } catch (IOException e) {
-            return false;
-        }
-
-        if (removido) {
-            escreverNovasLinhas(linhasModificadas);
-            return true;
-        }
-
-        return false;
-    }
-
-    public EntidadeOperadora procurar(int identificador) {
-        try (BufferedReader leitor = new BufferedReader(new FileReader(caminhoArquivo.toFile()))) {
-            String linha;
-            while ((linha = leitor.readLine()) != null) {
-                String[] dados = linha.split(";");
-                if (dados[0].equals(String.valueOf(identificador))) {
-                    return new EntidadeOperadora(
-                            Integer.parseInt(dados[0]),
-                            dados[1],
-                            Boolean.parseBoolean(dados[2])
-                    );
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (entidade.getNome() == null || entidade.getNome().trim().isEmpty()) {
+            return "O nome não pode ser vazio.";
         }
         return null;
     }
 
-    private boolean existeIdentificador(int identificador) {
-        try (BufferedReader leitor = new BufferedReader(new FileReader(caminhoArquivo.toFile()))) {
-            String linha;
-            while ((linha = leitor.readLine()) != null) {
-                String[] dados = linha.split(";");
-                if (dados[0].equals(String.valueOf(identificador))) {
-                    return true; 
-                }
-            }
-        } catch (IOException e) {
-            return false;
-        }
-        return false;
-    }
+    public String incluir(EntidadeOperadora entidade) throws IOException {
+        String erroValidacao = validar(entidade);
 
-    private void escreverNovasLinhas(List<String> linhasModificadas) {
-        try (BufferedWriter escritor = new BufferedWriter(new FileWriter(caminhoArquivo.toFile()))) {
-            for (String linha : linhasModificadas) {
-                escritor.write(linha);
-                escritor.newLine();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (erroValidacao != null) {
+            return erroValidacao;
+        }
+
+        boolean incluidoComSucesso = repositorioEntidadeOperadora.incluir(entidade);
+
+        if(incluidoComSucesso){
+            return null;
+        }else{
+            return "Entidade já existente";
         }
     }
 
-    private String formatarLinha(EntidadeOperadora entidade) {
-        return entidade.getIdentificador() + ";" + entidade.getNome() + ";" + entidade.getAutorizadoAcao();
+    public String alterar(EntidadeOperadora entidade)throws IOException {
+        String erroValidacao = validar(entidade);
+
+        if (erroValidacao != null) {
+            return erroValidacao;
+        }
+
+        boolean alteradaComSucesso = repositorioEntidadeOperadora.alterar(entidade);
+
+        if(alteradaComSucesso){
+            return null;
+        }else{
+            return "Entidade inexistente";
+        }
+    }
+
+    public String excluir(int identificador)throws IOException {
+        if (identificador <= 0 || identificador >= 100000) {
+            return "Identificador deve estar entre 1 e 99999.";
+        }
+
+        boolean removidaComSucesso = repositorioEntidadeOperadora.excluir(identificador);
+
+        if(removidaComSucesso){
+            return null;
+        }else{
+            return "Entidade inexistente";
+        }
+    }
+
+    public EntidadeOperadora localizar(int identificador)throws IOException {
+        if (identificador <= 0 || identificador >= 100000) {
+            return null;
+        }
+        return RepositorioEntidadeOperadora.buscar(identificador);
     }
 }
