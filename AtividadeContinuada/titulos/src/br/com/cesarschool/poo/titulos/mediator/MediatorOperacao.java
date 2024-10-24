@@ -1,6 +1,10 @@
 package br.com.cesarschool.poo.titulos.mediator;
 
-import br.com.cesarschool.poo.titulos.entidades.Transacao;
+import br.com.cesarschool.poo.titulos.entidades.*;
+import br.com.cesarschool.poo.titulos.mediator.*;
+import br.com.cesarschool.poo.titulos.repositorios.*;
+import java.io.IOException;
+import java.time.LocalDateTime;
 
 /*
  * Deve ser um singleton.
@@ -98,6 +102,21 @@ import br.com.cesarschool.poo.titulos.entidades.Transacao;
  * 6- Retornar o novo array.
  **/
 public class MediatorOperacao {
+    private static MediatorOperacao instancia;
+    private RepositorioTransacao repositorioTransacao = new RepositorioTransacao();
+    private MediatorOperacao mediatorOperacao = new MediatorOperacao();
+    private MediatorAcao mediatorAcao = MediatorAcao.getInstance();
+    private MediatorTituloDivida mediatorTituloDivida = MediatorTituloDivida.getInstance();
+    private MediatorEntidadeOperadora mediatorEntidadeOperadora = MediatorEntidadeOperadora.getInstance();
+    private MediatorOperacao() {}
+
+    public static MediatorOperacao getInstancia() {
+        if (instancia == null) {
+            instancia = new MediatorOperacao();
+        }
+        return instancia;
+    }
+    
 
 
 }

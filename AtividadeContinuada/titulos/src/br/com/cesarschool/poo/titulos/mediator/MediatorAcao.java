@@ -140,7 +140,7 @@ public class MediatorAcao {
         }
     }
 
-    public Acao localizar(int identificador) throws IOException {
+    public Acao buscar(int identificador) throws IOException {
         if (identificador <= 0 || identificador >= 100000) {
             return null;
         }

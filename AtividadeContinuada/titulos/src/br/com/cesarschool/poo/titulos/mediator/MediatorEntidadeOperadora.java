@@ -124,7 +124,7 @@ public class MediatorEntidadeOperadora {
         }
     }
 
-    public EntidadeOperadora localizar(int identificador)throws IOException {
+    public EntidadeOperadora buscar(int identificador)throws IOException {
         if (identificador <= 0 || identificador > 100000) {
             return null;
         }
