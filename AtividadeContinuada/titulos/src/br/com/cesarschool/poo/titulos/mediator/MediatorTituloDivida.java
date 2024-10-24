@@ -1,5 +1,13 @@
 package br.com.cesarschool.poo.titulos.mediator;
 
+import br.com.cesarschool.poo.titulos.entidades.Acao;
+import br.com.cesarschool.poo.titulos.entidades.TituloDivida;
+import br.com.cesarschool.poo.titulos.repositorios.RepositorioAcao;
+import br.com.cesarschool.poo.titulos.repositorios.RepositorioTituloDivida;
+
+import java.io.IOException;
+import java.time.LocalDate;
+
 /*
  * Deve ser um singleton.
  * 
@@ -52,5 +60,91 @@ package br.com.cesarschool.poo.titulos.mediator;
  * que ele retornar. Se o identificador for inválido, retornar null. 
  */
 public class MediatorTituloDivida {
+    private static MediatorTituloDivida instancia;
+    private final RepositorioTituloDivida repositorioTituloDivida = new RepositorioTituloDivida();
+    private MediatorTituloDivida() {}
 
+    public static MediatorTituloDivida getInstance() {
+        if (instancia == null) {
+            instancia = new MediatorTituloDivida();
+        }
+        return instancia;
+    }
+
+    private String validar(TituloDivida titulo) throws IOException {
+        if (titulo.getIdentificador() <= 0 || titulo.getIdentificador() > 100000) {
+            return "Identificador deve ser entre 1 e 1000000";
+        }
+
+        if (titulo.getNome() == null || titulo.getNome().trim().isEmpty()) {
+            return "O nome não pode ser vazio.";
+        }
+
+        if (titulo.getNome().length() < 10 || titulo.getNome().length() > 100) {
+            return "O nome deve conter entre 10 e 100 caracteres.";
+        }
+
+        if (titulo.getDataDeValidade().isBefore(LocalDate.now().plusDays(180))) {
+            return "A data de validade deve estar a pelo menos 180 dias à frente da data atual.";
+        }
+
+        if (titulo.getTaxaJuros() <= 0) {
+            return "A taxa de juros deve ser maior ou igual a zero.";
+        }
+
+        return null;
+    }
+
+    public String incluir(TituloDivida titulo) throws IOException {
+        String erroValidacao = validar(titulo);
+
+        if (erroValidacao != null) {
+            return erroValidacao;
+        }
+
+        boolean incluidoComSucesso = repositorioTituloDivida.incluir(titulo);
+
+        if(incluidoComSucesso){
+            return null;
+        }else{
+            return "Título já existente";
+        }
+    }
+
+    public String alterar(TituloDivida titulo) throws IOException {
+        String erroValidacao = validar(titulo);
+
+        if (erroValidacao != null) {
+            return erroValidacao;
+        }
+
+        boolean alteradaComSucesso = repositorioTituloDivida.alterar(titulo);
+
+        if(alteradaComSucesso){
+            return null;
+        }else{
+            return "Titulo inexistente";
+        }
+    }
+
+    public String excluir(int identificador) throws IOException {
+        if (identificador <= 0 || identificador > 100000) {
+            return "Identificador deve estar entre 1 e 1000000.";
+        }
+
+        boolean removidaComSucesso = repositorioTituloDivida.excluir(identificador);
+
+        if(removidaComSucesso){
+            return null;
+        }else{
+            return "TItulo inexistente";
+        }
+    }
+
+    public Acao localizar(int identificador) throws IOException {
+        if (identificador <= 0 || identificador > 100000) {
+            return null;
+        }
+        return RepositorioAcao.buscar(identificador);
+    }
 }

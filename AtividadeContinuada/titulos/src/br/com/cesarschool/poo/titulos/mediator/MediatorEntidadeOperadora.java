@@ -3,7 +3,7 @@ import br.com.cesarschool.poo.titulos.entidades.*;
 import br.com.cesarschool.poo.titulos.repositorios.*;
 
 import java.io.IOException;
-import java.time.LocalDate;
+
 /*
  * Deve ser um singleton.
  * 
@@ -66,7 +66,7 @@ public class MediatorEntidadeOperadora {
     }
     private String validar(EntidadeOperadora entidade) {
         if (entidade.getIdentificador() <= 0 || entidade.getIdentificador() > 100000) {
-            return "Identificador deve ser entre 1 e 1000000.";
+            return "Identificador deve ser entre 1 e 100000.";
         }
 
         if (entidade.getNome().length() < 10 || entidade.getNome().length() > 100) {
@@ -111,8 +111,8 @@ public class MediatorEntidadeOperadora {
     }
 
     public String excluir(int identificador)throws IOException {
-        if (identificador <= 0 || identificador >= 100000) {
-            return "Identificador deve estar entre 1 e 99999.";
+        if (identificador <= 0 || identificador > 100000) {
+            return "Identificador deve estar entre 1 e 100000.";
         }
 
         boolean removidaComSucesso = repositorioEntidadeOperadora.excluir(identificador);
@@ -125,7 +125,7 @@ public class MediatorEntidadeOperadora {
     }
 
     public EntidadeOperadora localizar(int identificador)throws IOException {
-        if (identificador <= 0 || identificador >= 100000) {
+        if (identificador <= 0 || identificador > 100000) {
             return null;
         }
         return RepositorioEntidadeOperadora.buscar(identificador);
